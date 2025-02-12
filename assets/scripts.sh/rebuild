@@ -1,0 +1,302 @@
+#! /usr/bin/env sh
+set -eu # -o pipefail # Undefined in POSIX shell
+
+# This script *should* be fully POSIX shell compatible. If you find any parts
+# that are undefined in POSIX shell, then please feel free to fix them and send
+# those changes back for all to enjoy.
+
+# Features to add:
+# - [ ] Get to choose between `switch` and `build`. Also get to use `test`,
+#   `boot`, `build-vm` and `dry-build` when changing the NixOS config.
+# - [ ] Squashing commit messages with `-s`.
+# - [ ] If a new generation was not built, then have the commit message reflect
+#   that.
+# - [x] Allow for updating and merging with unsaved changes. This could be
+#   achieved by popping the stash after switch back to the previous branch and
+#   before merging the main branch into previous branch.
+# - [ ] Make it so that you don't rebuild twice if you pull changes from the
+#   remote.
+# - [ ] Add long flags (--help, --only-system, etc).
+# - [ ] Reduce redundancy.
+
+
+# Prints a help manual. This is called when the `-h` flag is passed to the
+# script or when an invalid option is used.
+usage() { echo "\
+Usage: rebuild [-flags]
+Available flags:
+    -h: Help.                   Prints this page.
+    -v: Verbose.                \`set -xv\`.
+    -s: Only OS.                Only rebuild the operating system (NixOS).
+    -S: And OS.                 Also rebuild the operating system (NixOS).
+    -u: Upgrade.                Upgrade the \`flake.lock\` file.
+    -m: Merge.                  Merge the updates into the test branch.
+    -j: Max jobs [int].         Passes \`--max-jobs arg\` into the commands.
+    -c: Cores [int].            Passes \`--cores arg\` into the commands.
+    -p: Power off.              Power off at command completion.
+    -r: Reboot.                 Reboot at command completion."
+}
+
+# The main function. This is called at the end of the file with all arguments.
+# This allows for defining functions in the order that they are called and also
+# begin the file with the entry point to the script, like in any sane language.
+main() {
+    # Variables and their default values.
+    upgrade=false
+    and_os=false
+    only_os=false
+    merge=false
+    max_jobs=""
+    cores=""
+    reboot=false
+    poweroff=false
+
+    # Option parsing. This uses the shell builtin 'getopts', but you can replace
+    # this with 'GNU getopt' for support for long options. If you are not on
+    # Linux (like BSD or OS X) you might have problems with that, but you can
+    # just install getopt through Nix for support. You will need to make sure
+    # that the `~/.nix-profile/bin` is before `/bin` in your $PATH variable.
+    while getopts ":hvuoOmj:c:pr" flag; do
+        # Find the matching option
+        case "$flag" in
+        h) # Help.
+            usage; exit 0 ;;
+        v) # Verbose.
+            set -xv ;;
+        u) # Upgrade.
+            upgrade=true ;;
+        o) # Only os.
+            only_os=true ;;
+        O) # And os.
+            and_os=true ;;
+        m) # Merge.
+            merge=true ;;
+        j) # Max jobs.
+            max_jobs="--max-jobs $OPTARG" ;;
+        c) # Cores.
+            cores="--cores $OPTARG" ;;
+        p) # Power off.
+            poweroff=true ;;
+        r) # Reboot.
+            reboot=true ;;
+        *) # Anything else is invalid and exits the script.
+            printf "Bad option\n\n" >& 2
+            usage >& 2
+            exit 2 ;;
+        esac
+    done
+    # Not technically needed for this script.
+    shift $((OPTIND-1))
+
+    # Makes sure you are not passing any arguments to the script except flags.
+    # if [ "$*" != "" ]; then
+    if [ -n "$*" ]; then
+        echo "Argument \`$1\` not valid. This script takes no arguments except for short flags" >& 2
+        usage >& 2
+        exit 1
+    fi
+
+    # Checks for incompatable flags.
+    if $reboot && $poweroff; then
+        echo "cannot use both \`-p\` and \`-r\`; cannot reboot and poweroff" >& 2
+        exit 1
+    elif $and_os && $only_os; then
+        echo "Using both \`-o\` and \`-O\` is not allowed" >& 2
+        exit 1
+    elif $reboot && (! $and_os && ! $only_os); then
+        echo "You are about to only upgrade the Home Manager config, but have also used the reboot flag." >& 2
+        echo "Changes to home-manager (your user config) do not ever need a system reboot to apply." >& 2
+        input-accept
+    fi
+
+    # Aborts the script if you don't give sudo priviledges if needed.
+    if ($and_os || $only_os) && ! sudo true; then
+        echo "Aborting upgrade" >& 2
+        exit 1
+    fi
+
+    # Merge the flags.
+    options="$max_jobs $cores"
+
+    # Logic deciding if to rebuild the system and user.
+    if $and_os || $only_os; then
+        actions "$NIXOS_REPO" "NixOS"
+    fi
+    if ! $only_os; then
+        actions "$HOMEMANAGER_REPO" "Home Manager"
+    fi
+
+    # Checks if it's supposed to turn of the computer at the end of the script.
+    if $poweroff; then
+        poweroff
+    elif $reboot; then
+        reboot
+    fi
+}
+
+# This function does all the *action* of the script. It is called for both the
+# NixOS repo and Home Manager repo and does the same for both of them.
+actions() {
+    # Variables and their default values.
+    path="$1"
+    which="$2"
+    stashed=false
+    do_build=true
+    built=true
+
+    # Go into the directory containing the flake (needed for git commands).
+    if [ ! -d "$path"/.git ]; then
+        echo "$path does not appear to be a git repository" >& 2
+        exit 2
+    else
+        cd "$path"
+    fi
+
+    # Set the variables according to which repo is being updated.
+    case $which in
+    "NixOS")
+        command="sudo nixos-rebuild"
+        current_gen=$(
+            nixos-rebuild list-generations | awk 'FNR == 2 {print $1}'
+        ) ;;
+    "Home Manager")
+        command="home-manager"
+        current_gen=$(
+            home-manager generations | awk 'FNR == 1 {print $5}'
+        ) ;;
+    esac
+
+    # This checks if you have unsaved changes anywhere and then stashes them.
+    # make sure the update commit contains no other changes.
+    if $upgrade && [ "$(git diff HEAD)" != "" ]; then
+        git checkout HEAD flake.lock 1> /dev/null
+        if [ "$(git diff HEAD)" != "" ]; then
+            echo "Stashed changes in your $which repository"
+            git stash --include-untracked 1> /dev/null
+            stashed=true
+        fi
+    fi
+
+    # Procedure for building changes.
+    if ! $upgrade; then
+        git add --all
+        git commit --message \
+        "Built $(hostname) $which generation number $((current_gen+1))" \
+        2> /dev/null || {
+            echo "Not rebuilding the $which configuration"
+            do_build=false
+        }
+    # Procedure for updating the flake.lock.
+    else
+        # Saves the state of the flake.lock and then tries to update the flake,
+        # then saves the state of the flake.lock after the update for comparing
+        # if anything was actually updated. If not, then don't do a rebuild.
+        flake_before=$(cat flake.lock)
+        nix flake update || {
+            echo "\`nix flake update\` failed. Check your internet connection" >& 2
+            exit 2
+        }
+        flake_after=$(cat flake.lock)
+        if [ "$flake_before" = "$flake_after" ]; then
+            echo "No updates available for your $which repository"
+            do_build=false
+        elif [ "$flake_before" != "$flake_after" ]; then
+            # Commit the change to remove the "dirty repo" warning
+            git add flake.lock &&
+            git commit --message 'Updated the flake.lock file'
+        fi
+    fi
+
+    # Build changes if there were any.
+    if $do_build; then
+        $command switch $options || built=false
+        # built=false # Uncomment this to to test failed builds.
+    fi
+
+    # Revert commits if build failed as the commits were made beforehadn to
+    # remove `dirty tree` warning.
+    if ! $built && $upgrade; then
+        echo "Building the new update failed, reverting the commit..." >& 2
+        git reset --hard HEAD~1
+    elif ! $built; then
+        echo "Building the new configuration failed, reverting the commit ..." >& 2
+        git reset --soft HEAD~1
+        git restore --staged .
+    fi
+
+    # Merge changes if the build succeeded.
+    if $merge && $built; then
+        merge
+    fi
+    # Pop the stash if there is one.
+    if $stashed; then
+        git stash pop 1> /dev/null
+    fi
+
+    # Exit if the build was unsuccessful.
+    if ! $built; then
+        exit 2
+    fi
+}
+
+# This is called to merge the changes into the `main` branch and then push those
+# changes to the remote. Irrelevant if you don't have a remote repository.
+merge() {
+    # Variables and their default values.
+    main_branch=$GITMBRANCH
+    merge_fail=false
+
+    # Saves the current branch and switches to the main branch.
+    previous_branch=$(git rev-parse --abbrev-ref HEAD)
+    git switch "$main_branch" 2> /dev/null >& 2 || {
+        echo "\`$main_branch\` is not a branch in the $path repository" >& 2
+        exit 2
+    }
+
+    # Check for changes made by `git pull`.
+    case $(git pull 2> /dev/null) in
+    "Already up to date." | "")
+        pulled=false
+        echo "no pulled changes"
+        ;;
+    *)
+        pulled=true
+        echo "pulled changes"
+        ;;
+    esac
+
+    # Flip merge.
+    git merge "$previous_branch" || merge_fail=true
+    git push 2> /dev/null >& 2 || {
+        echo "Pushing changes to remote failed. Check internet your connection" >& 2
+    }
+    git switch "$previous_branch" 2> /dev/null >& 2
+
+    # Pop the stash before merging into the previous branch to make sure that if
+    # these changes conflict, then your local changes are prioritised.
+    if $stashed; then
+        git stash pop 1> /dev/null
+        stashed=false
+    fi
+
+    # Merge the new pulled pranch into the previous branch.
+    git merge "$main_branch" || merge_fail=true
+
+    # Exit if any mergeconflicts happened.
+    if $merge_fail; then
+        echo "Failed to merge branches. Resolve mergeconflict before making any further changes" >& 2
+        exit 2
+    fi
+
+    # If any changes were pulled and merged into the branch, then try to build
+    # them.
+    if $pulled; then
+        $command switch $options || {
+            echo "Building pulled/merged changes failed. Changes are still in the repository" >& 2
+            exit 2
+        }
+    fi
+}
+
+# Calls the main function with all arguments given to the script.
+main "$@"

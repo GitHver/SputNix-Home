@@ -1,0 +1,47 @@
+
+
+/* #tabbrowser-tabs { */ 
+  /* visibility: collapse !important; */
+/* } */
+
+#sidebar-header {
+  visibility: collapse !important;
+}
+
+#TabsToolbar-customization-target {
+  visibility: collapse !important;
+} 
+
+#titlebar {
+  appearance: none !important;
+  height: 0px;
+}
+
+#titlebar > #toolbar-menubar {
+  margin-top: 0px;
+}
+
+#TabsToolbar {
+  min-width: 0 !important;
+  min-height: 0 !important;
+}
+
+#TabsToolbar > .titlebar-buttonbox-container {
+  display: block;
+  position: absolute;
+  top: 12px;
+  left: 0px;
+}
+
+/* #sidebar-header { display:none!important; } */
+/* #sidebar-search-container { display:none!important; } */
+
+/* Remove title section from Tree Style Tabs */
+/* #sidebar-box[sidebarcommand="treestyletab_piro_sakura_ne_jp-sidebar-action"] > #sidebar-header { */
+     /* visibility: collapse; */  
+/* } */
+
+/* #sidebar-box #sidebar-header { */
+  /* display: none !important; */
+  /* visibility: collapse; */  
+/* } */

@@ -1,0 +1,63 @@
+#! /usr/bin/env sh
+set -eu
+# set -o pipefail # Undefined in POSIX shell
+
+usage() {
+echo "\
+Usage: $0 [-flags]
+Available flags:
+    -h: Help.                           Prints this page.
+    -v: Verbose.                        \`set -xv\`.
+    -r: Read input [input: name].       Set the name in the greeting through reading the input
+                                        after executing the command.
+    -g: Greeting.                       Set the greeting. Default: \"Hello\""
+}
+
+main() {
+    # Variables and their default values.
+    greeting="Hello"
+    name=""
+    name_set=false
+    read_input=false
+    
+    # Option parsing.
+    while getopts ":hvrg:" flag; do
+        case "$flag" in
+        h) # Help.
+            usage; exit 0 ;;
+        v) # Verbose.
+            set -xv ;;
+        r) # Read input.
+            read_input=true ;;
+        g) # Greeting
+            greeting=$OPTARG ;;
+        *) # Anything else is invalid and exits the script.
+            usage 1>&2; exit 1 ;;
+        esac
+    done
+    shift $((OPTIND-1))
+
+    # Sets $name as all arguments passed to the script (if any).
+    if [ "$*" != "" ]; then
+        name_set=true
+        name="$*"
+    fi
+
+    # Makes sure you don't use `-r` and pass an argument to the script.
+    if $name_set && $read_input; then
+        echo "Cant use both \`-n\` and \`-r\`" >&2
+        exit 2
+    fi
+
+    # Check if the `-r` flag was passed to the script.
+    if $read_input; then
+        printf "Enter your name: "
+        read name
+    fi
+
+    # Echo out the results.
+    echo "$greeting ${name:-"$USER"}"    
+}
+
+# Calls the main function with all arguments given to the script.
+main "$@"

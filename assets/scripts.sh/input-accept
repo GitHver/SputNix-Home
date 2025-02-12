@@ -1,0 +1,26 @@
+#! /usr/bin/env sh
+set -eu
+# set -o pipefail # Undefined in POSIX shell
+
+# This function can be called to take input from the user on whether to proceed.
+main() {
+    for i in 1 2 3; do 
+        printf "continue? [Y/N]: " >&2
+        read input
+        case $input in
+        [yY]) return 0 ;;
+        [nN]) exit 1 ;;
+        *)
+            if [ $i -lt  3 ]; then
+                sleep 0.5
+            else
+                echo "3 invalid answers, aborting" >&2
+                exit 2
+            fi
+            ;;
+        esac
+    done
+}
+
+# Calls the main function with all arguments given to the script.
+main "$@"

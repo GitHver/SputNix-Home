@@ -1,0 +1,206 @@
+#====<< Helix config >>========================================================>
+# These are options to change the behaviour of Helix. Here are all the optinos
+# as of Helix version 25.01. The uncommented options have been changed from
+# their default value. The commented options are set to the default values
+# meaning that uncommenting them does not change anything. It is beast to keep
+# them commented out as if/when the default values change, then you get those
+# changes instead of them being overwritten here. For full list of options, go
+# to: https://docs.helix-editor.com/editor.html
+
+#====<< Theme >>=======================>
+# This theme can be found in `./languages.toml`. You can find the list of all
+# built in themes with `:theme`.
+theme = "terminal_slave"
+
+[editor] #=====================================================================>
+#====<< Misc >>========================>
+# mouse = true
+# idle-timeout = 250 # time in milliseconds
+# continue-comments = true
+# insert-final-newline = true
+# auto-format = true
+# rulers = []
+# text-width = 80
+# auto-info = true
+# popup-border = "none" # can be: "popup", "menu" or "all"
+# color-modes = false
+# indent-heuristic = "hybrid" # "tree-sitter" "simple"
+# jump-label-alphabet = "abcdefghijklmnopqrstuvwxyz"
+# workspace-lsp-roots = []
+end-of-line-diagnostics = "hint" # "disable"
+#====<< Compatibility >>===============>
+# default-line-ending = "native"
+# shell = [ "sh", "-c" ]
+# true-color = false
+# undercurl = false
+#====<< Completion >>==================>
+# auto-completion = true
+# completion-timeout = 250
+preview-completion-insert = false
+# completion-trigger-len = 2
+completion-replace = true
+#====<< Copy-paste rules >>============>
+default-yank-register = "+" # by default this is `"`. `+` is the system register
+# middle-click-paste = true
+# clipboard-provider = # platform specific
+#====<< Gutter >>======================>
+line-number = "relative" # can also be: "absolute"
+# gutters = [ "diagnostics", "spacer", "line-numbers", "spacer", "diff" ]
+#====<< Always show bufferline >>======>
+bufferline = "always"
+#====<< Cursor & view >>===============>
+cursorline = true
+# cursorcolumn = false
+scrolloff = 4
+# scroll-lines = 3
+
+[editor.cursor-shape] #========================================================>
+normal = "block"
+insert = "bar"
+select = "underline"
+
+[editor.statusline] #==========================================================>
+mode.normal = "NORMAL"
+mode.insert = "INSERT"
+mode.select = "SELECT"
+# separator = "|"
+#====<< Statusline keys >>=============>
+# Available keys:
+# "mode"
+# "spinner"
+# "file-name"
+# "file-absolute-path"
+# "file-base-name"
+# "file-modification-indicator"
+# "file-encoding"
+# "file-line-ending"
+# "read-only-indicator"
+# "total-line-numbers"
+# "file-type"
+# "diagnostics"
+# "workspace-diagnostics"
+# "selections"
+# "primary-selection-lenght"
+# "position"
+# "position-percentage"
+# "seperator"
+# "spacer"
+# "version-control"
+# "register"
+left = [ #====<< Left >>===============>
+  "mode",
+  "file-name",
+  "read-only-indicator",
+  "file-modification-indicator",
+  "file-encoding",
+]
+center = [ #==<< Center >>=============>
+  #"separator",
+]
+right = [ #===<< Right >>==============>
+  "diagnostics",
+  "spinner",
+  "register",
+  # "selections",
+  "primary-selection-length",
+  "position",
+  "total-line-numbers",
+]
+
+[editor.lsp] #=================================================================>
+# enable = true
+# display-messages = true
+# display-progress-messages = false
+# auto-signature-help = true
+display-inlay-hints = true
+# display-signature-help-docs = true
+# snippets = true
+# goto-referance-include-declararion = true
+
+[editor.inline-diagnostics] #==================================================>
+# Minimum severity to show a diagnostic on the primary cursor's line.
+# Note that `cursor-line` diagnostics are hidden in insert mode.
+cursor-line = "warning"
+# other-lines = "disable"
+# prefix-length = 1
+# max-wrap = 20
+# max-diagnostics = 10
+
+[editor.file-picker] #=========================================================>
+# hidden = true
+# follow-symlinks = true
+# deduplicate-links = true
+# parents = true
+# ignore = true
+# git-ignore = true
+# git-global = true
+# git-exclude = true
+# max-depth # Unset by default
+
+[editor.auto-pairs] #==========================================================>
+'(' = ')'
+'{' = '}'
+'[' = ']'
+'"' = '"'
+"'" = "'"
+'`' = '`'
+'<' = '>'
+# For markup
+# '*' = '*'
+# '_' = '_'
+# can also just be anything
+# 's' = '?'
+
+[editor.auto-save] #===========================================================>
+# focus-lost = false
+# after-delay.enable = false
+# after-delay.timeout = 3000
+
+[editor.search] #==============================================================>
+# smart-case = true
+# wrap-around = true
+
+[editor.whitespace.render] #===================================================>
+# space = "all"
+# tab = "all"
+# nbsp = "none"
+# nnbsp = "none"
+# newline = "none"
+
+[editor.whitespace.characters] #===============================================>
+# space = "·"
+# nbsp = "⍽"
+# nnbsp = "␣"
+# tab = "→"
+# newline = "⏎"
+# tabpad = "·" # Tabs will look like "→···" (depending on tab width)
+
+[editor.indent-guides] #=======================================================>
+# render = false
+# character = "▏" # Some characters that work well: "▏", "┆", "┊", "⸽", ""
+skip-levels = 0 # skips first indentation like in functions or file scope.
+
+[editor.soft-wrap] #===========================================================>
+# enable = false
+# max-wrap = 20 # Increase value to reduce forced mid-word wrapping
+# max-indent-retain = 40 # max amout of indentation to start the
+# wrap-indicator = "↪" # Make this empty ("") to have no indication if wraping
+# wrap-at-text-width = false # Wrap at the set `text-width`. default is `80`
+
+[editor.smart-tab] #===========================================================>
+enable = false
+# supersede-menu = false
+
+
+#====<< Key-remapping >>=======================================================>
+
+[keys.normal]
+# Makes `X` behave like a reversed `x`
+X = "extend_line_above"
+# Makes appending not retain the selection. Can cause issues with multiple
+# cursors, but you can switch to select mode for the original behavior.
+a = ["ensure_selections_forward", "collapse_selection", "move_char_right", "insert_mode"]
+
+[keys.select]
+# Makes `X` behave like a reversed `x`
+X = "extend_line_above"

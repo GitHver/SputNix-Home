@@ -1,0 +1,277 @@
+#======<< Terminal Slave Theme >>==============================================>
+# This theme is built around using your terminals colours as to allow you to
+# define the colours of your interface through your terminal or desktop
+# environment. It also tries to hide the cell division to better allow terminal
+# sizes that aren't perfectly divisable by by the cell width. Thus this theme
+# makes sure there are no weird *lines* that go to the edges of the window (like
+# the status line or buffer line), instead opting to use the terminals background
+# colour. It is therefore controlled by terminal, a *Terminal Slave*.
+
+## Theme to inherit undeclared fields from. No longer needed.
+# inherits = "base16_transparent"
+
+#====<< Available colours >>===========>
+# red           light-red
+# magenta       light-magenta
+# blue          light-blue
+# cyan          light-cyan
+# green         light-green
+# yellow        light-yellow
+# light-gray    white
+# black         gray
+
+#====<< Available modifiers >>=========>
+# italic
+# bold
+# reversed
+# dim
+# hidden
+# crossed_out
+# slow_blink
+# rapid_blink
+
+#====<< Underline styles >>============>
+# line
+# curl
+# dashed
+# dotted
+# double_line
+
+
+#====<< Language Syntax Highlighting >>========================================>
+
+#====<< Types >>=======================>
+"type" = "green"
+# "type.builtin" =
+# "type.parameter" =
+# "type.enum" =
+
+#====<< Constant >>====================>
+"constant" = "light-magenta"
+# "constant.builtin" =
+# "constant.builtin.boolean" =
+"constant.character" = { fg = "white", modifiers = [ "bold" ] }
+# "constant.character.escape" =
+"constant.numeric" = "yellow"
+# "constant.numeric.integer" =
+"constant.numeric.float" = { fg = "yellow", modifiers = [ "italic" ] }
+
+#====<< Variables >>===================>
+# "variable" = { fg = "white" }
+# "variable.builtin" = { fg = "white", modifiers = [ "bold" ] }
+"variable" = { fg = "cyan" }
+"variable.builtin" = { fg = "light-cyan", modifiers = [ "bold" ] }
+# "variable.paramater" =
+# "variable.other" =
+# "variable.other.member" =
+# "variable.other.member.private" =
+
+#====<< Strings >>=====================>
+"string" = { fg = "light-green", modifiers = [ "italic" ] }
+"string.regexp" = { fg = "green", underline = { color = "green", style = "dotted" }, modifiers = [ "dim" ] }
+"string.special" = { fg = "yellow", underline = { color = "yellow", style = "line" }, modifiers = [ "italic" ] }
+# "string.special.url" =
+# "string.special.path" =
+# "string.special.symbol" =
+
+#====<< Punctuation & operators >>=====>
+"punctuation" = "white"
+# "punctuation" = "magenta"
+# "punctuation.delimiter" =
+# "punctuation.brackets" =
+"punctuation.special" = { fg = "white", modifiers = [ "bold" ] }
+# "operator" = { fg = "white" }
+"operator" = { fg = "red" }#, modifiers = [ "bold" ] }
+
+#====<< Keywords >>====================>
+"keyword" = { fg = "red" }
+# "keyword" =
+# "keyword.control" =
+"keyword.control.conditional" = { fg = "red" }
+"keyword.control.repeat" = { fg = "red", modifiers = [ "italic" ] }
+# "keyword.control.import" =
+# "keyword.control.return" =
+"keyword.control.exception" = { fg = "light-red" }
+# "keyword.operator" =
+# "keyword.directive" = 
+# "keyword.function" =
+# "keyword.storage" =
+# "keyword.storage.type" =
+# "keyword.storage.modifier" =
+
+#====<< Functions >>===================>
+"function" = { fg = "magenta" }
+"function.builtin" = { fg = "magenta", modifiers = [ "italic" ] }
+"function.method" = { fg = "magenta", modifiers = [ "bold" ] }
+# "function.method.private" =
+"function.macro" = { fg = "blue", modifiers = [ "italic" ] }
+"function.special" = { fg = "light-magenta" }
+
+#====<< Unique >>======================>
+"namespace" = "light-blue"
+"attribute" = "green"
+"constructor" = "blue"
+"special" = { fg = "light-cyan", modifiers = [ "italic" ] }
+"label" = { fg = "yellow", modifiers = [ "italic" ] }
+"tag" = "yellow"
+"tag.builtin" = { fg = "light-yellow", modifiers = [ "italic" ] }
+
+#====<< Comments >>====================>
+"comment" = { fg = "light-gray", modifiers = [ "italic" ] }
+# "comment.line" =
+"comment.block" = { fg = "white", modifiers = [ "italic" ] }
+# "comment.block.documentation" =
+
+
+#====<< Changes & Diagnostics >>===============================================>
+
+#====<< Diffs >>=======================>
+"diff.plus" = "light-green"
+"diff.minus" = "light-red"
+"diff.delta" = "light-yellow"
+"diff.delta.moved" = "blue"
+"diff.delta.conflict" = "magenta"
+# "diff.plus.gutter" = "light-green"
+# "diff.minus.gutter" = "light-red"
+# "diff.delta.gutter" = "light-yellow"
+
+#====<< Diagnostics (gutter) >>========>
+"info" = "light-blue"
+"hint" = "light-gray"
+"debug" = "light-gray"
+"warning" = "light-yellow"
+"error" = "light-red"
+
+#====<< Diagnostics (editing area) >>==>
+"diagnostic.info" = { underline = { color = "light-blue", style = "dotted" } }
+"diagnostic.hint" = { underline = { color = "light-gray", style = "double_line" } }
+"diagnostic.debug" = { underline = { color ="light-gray", style = "dashed" } }
+"diagnostic.warning" = { underline = { color = "light-yellow", style = "curl" } }
+"diagnostic.error" = { underline = { color ="light-red", style = "curl" } }
+
+#====<< Debug info >>==================>
+# "ui.debug.breakpoint" =
+# "ui.debug.active" = 
+
+
+#====<< Markup >>==============================================================>
+
+#====<< Headings >>====================>
+"markup.heading" = "blue"
+"markup.heading.marker" = "white"
+# "markup.heading.1" = "light-blue"
+# "markup.heading.2" = "light-blue"
+# "markup.heading.3" = "light-blue"
+# "markup.heading.4" = "light-blue"
+# "markup.heading.5" = "light-blue"
+# "markup.heading.6" = "light-blue"
+
+#====<< Lists >>=======================>
+"markup.list" = "light-red"
+# "markup.list.numbered" = "light-red"
+# "markup.list.unnumbered" = "light-red"
+# "markup.list.checked" = "light-red"
+# "markup.list.unchecked" = "light-red"
+
+#====<< Highlighting >>================>
+"markup.bold" = { fg = "light-magenta", modifiers = ["bold" ] }
+"markup.italic" = { fg = "light-magenta", modifiers = [ "italic" ] }
+"markup.strikethrough" = { fg = "red", modifiers = [ "crossed_out" ] }
+
+#====<< Links >>=======================>
+"markup.link" = "light-red"
+"markup.link.url" = { fg = "yellow", underline = { color = "yellow", style = "line" } }
+# "markup.link.label" = "light-red"
+# "markup.link.text" = "light-red"
+
+#====<< Other >>=======================>
+"markup.quote" = "blue"
+"markup.raw" = { fg = "cyan", modifiers = [ "bold" ] }
+# "markup.raw.inline" = "green"
+# "markup.raw.block" = "green"
+
+#====<< Interface >>===================>
+# "markup.normal" = { fg = "blue" }
+# "markup.insert" = { fg = "green" }
+# "markup.select" = { fg = "magenta" }
+# "markup.heading" =
+
+
+#====<< UI colours >>==========================================================>
+
+#====<< Background and normal text >>==>
+"ui.background" = { fg = "white"}
+"ui.background.separator" = { fg = "gray" }
+"ui.text" = { fg = "light-gray" }
+"ui.text.focus" = { fg = "white" }
+# "ui.text.inactive" = { fg = "light-gray" }
+# "ui.text.info" = { fg = "light-gray" }
+# "ui.text.directory" = { fg = "light-gray" }
+
+#====<< Cursor >>======================>
+# "ui.cursor" = { modifiers = [ "reversed" ] }
+"ui.cursor" = { fg = "black", bg = "white" }
+# "ui.cursor.normal" =
+# "ui.cursor.insert" =
+# "ui.cursor.select" =
+# "ui.cursor.match" = { modifiers = [ "reversed" ]}
+"ui.cursor.match" = { fg = "white", bg = "gray" }
+# "ui.cursor.primary" =
+# "ui.cursor.primary.normal" =
+# "ui.cursor.primary.insert" =
+# "ui.cursor.primary.select" =
+"ui.cursor.secondary" = { modifiers = [ "reversed" ] }
+"ui.selection" = { bg = "gray" }
+# "ui.selection.primary" =
+
+#====<< Cursorline & column >>=========>
+"ui.cursorline.primary" = { underline = { color = "light-gray", style = "line" } }
+"ui.cursorline.secondary" = { underline = { color = "gray", style = "dotted" } }
+"ui.cursorcolumn.primary" = { bg = "gray" }
+"ui.cursorcolumn.secondary" = { bg = "black" }
+
+#====<< Statusline & Bufferline >>=====>
+"ui.statusline" = { fg = "white" }
+# "ui.statusline.inactive" = { fg = "gray" }
+# "ui.statusline.normal" = { fg = "black", bg = "blue" }
+# "ui.statusline.insert" = { fg = "black", bg = "green" }
+# "ui.statusline.select" = { fg = "black", bg = "magenta" }
+"ui.bufferline" = { fg = "light-gray" }
+"ui.bufferline.active" = { fg = "white", modifiers = [ "bold" ] }
+"ui.bufferline.background" = "black"
+
+#====<< Windows and menus >>===========>
+"ui.menu" = { fg = "white" }
+"ui.menu.selected" = { modifiers = ["reversed"] }
+"ui.menu.scroll" = { fg = "light-gray" }
+"ui.popup" = { fg = "white" }
+#u "ui.popup.info" =
+"ui.window" = { fg = "gray" }
+"ui.help" = { fg = "light-gray" }
+
+#====<< Pickers >>=====================>
+# "ui.picker.header" =
+# "ui.picker.header.column" =
+# "ui.picker.header.column.active" =
+# "ui.highlight" =
+# "ui.highlight.frameline" =
+
+#====<< Gutter >>======================>
+"ui.gutter" = "gray"
+"ui.gutter.selected" = "gray"
+"ui.linenr" = { fg = "light-gray" }
+"ui.linenr.selected" = { fg = "white", modifiers = [ "italic", "bold" ] }
+
+#====<< Whitspace characters >>========>
+"ui.virtual.ruler" = { bg = "gray" }
+"ui.virtual.whitespace" = "gray"
+"ui.virtual.wrap" = "gray"
+"ui.virtual.indent-guide" = "gray"
+"ui.virtual.inlay-hint" = "gray"
+# "ui.virtual.inlay-hint.parameter" =
+# "ui.virtual.inlay-hint.type" =
+"ui.virtual.jump-label" = { fg = "blue", modifiers = [ "bold", "underlined" ] }
+
+
+# [palette]
+# No pallet since we only use the colours that the terminal provides.

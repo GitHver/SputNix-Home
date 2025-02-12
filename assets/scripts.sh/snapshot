@@ -1,0 +1,111 @@
+#! /usr/bin/env sh
+set -eu
+# set -o pipefail # Undefined in POSIX shell
+
+usage() {
+echo "\
+Usage: upgrade [-flags]
+Available flags:
+    -h: Help.                           Prints this page.
+    -v: Verbose.                        \`set -xv\`.
+    -m: Merge.                          Merge the branch into the main branch.
+    -M: Flip-Merge.                     Merge the branch into the main branch and then
+                                        the main branch into the current branch.
+    -s: Squash [input: number 0-9].     Reset to a specified commit to squash git history.
+    -b: Branch [<BRANCH>].              Set a custom branch to switch to. Usefull if main
+                                        branch is not named \`main\`.
+    -n: No commit.                      Do not make a commit. Useful with other flags."
+}
+
+main() {
+    # Variables and their default values.
+    main_branch=$GITMBRANCH
+    merge=false
+    flip_merge=false
+    squash=false
+    no_commit=false
+
+    # Option parsing.
+    while getopts ":hvmMsb:n" flag; do
+        case "$flag" in
+        h) # Help.
+            usage; exit 0 ;;
+        v) # Verbose.
+            set -xv ;;
+        m) # Merge.
+            merge=true ;;
+        M) # Merge flip
+            flip_merge=true;;
+        s) # Squash
+            squash=true ;;
+        b) # Branch
+            main_branch=${OPTARG} ;;
+        n) # No commit
+            no_commit=true ;;
+        *) # Anything else is invalid and exits the script.
+            usage >&2; exit 2 ;;
+        esac
+    done
+    shift $((OPTIND-1))
+
+    # Makes sure you are not passing any arguments to the script except flags.
+    if [ "$*" != "" ]; then
+        echo "Argument \`$1\` not valid. This script takes no arguments except for short flags" >&2
+        usage >&2
+        exit 1
+    fi
+
+    # Makes sure you aren't trying to merge and flip-merge
+    if $merge && $flip_merge; then
+        echo "cannot use both \`-m\` and \`-M\`; cannot both oneway merge and merge both ways" >&2
+        exit 1
+    fi
+
+    # If the `-s` flag was passed to the script then show commits to revert to.
+    if $squash; then
+        echo "Choose a commit to revert to (HEAD is 0) [0-9]:"
+        git log -10 --oneline
+        squash_number=$(inputNumber)
+        git reset --soft HEAD~"$squash_number"
+    fi
+
+    # Always add all files and commit them.
+    git add -A
+    if ! $no_commit; then
+        git commit
+    fi
+
+    # If `-m` was passed to the script then merge the branch into main.
+    if $merge || $flip_merge; then
+        previous_branch=$(git rev-parse --abbrev-ref HEAD)
+        git switch "$main_branch" 2> /dev/null >&2
+        git pull 2> /dev/null || true
+        git merge "$previous_branch"
+        git push 2> /dev/null >&2 || true
+        git switch "$previous_branch" 2> /dev/null >&2
+        if $flip_merge; then
+            git merge "$main_branch"
+        fi
+    fi
+}
+
+inputNumber() {
+    for _ in 1 2 3; do 
+        printf "Input the number of commit to revert to [0-9] or \`E\` to exit: " >&2
+        read input;
+        echo "" >&2
+        case $input in
+        [0-9]) # If correct input, echo it out (to be captured as the functions output) and then return 0.
+            echo "$input"; return 0 ;;
+        [eE]) # Exit early by inputing `e` r `E`.
+            exit 1 ;;
+        *) # Echo the error and sleep for a second to prevent missinput.
+            echo "Not a number between 0-9" >&2; sleep 1 ;;
+        esac
+    done
+    echo "3 invalid answers, aborting" >&2
+    exit 1
+}
+
+# Calls the main function with all arguments given to the script.
+main "$@"
