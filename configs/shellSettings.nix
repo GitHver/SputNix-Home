@@ -33,7 +33,7 @@ in { config = {
     # Erase duplicates in the history file and make commands beginning with
     # whitespace not be written to the history file.
     historyControl = [ "erasedups" "ignorespace" ];
-    # Commands that don't go into the history file.
+    # Commands that don't og into the history file.
     historyIgnore = [
       "ls" "ll" "l" "cd" "yy"
       "exit" "zsh" "fish" "nu"
@@ -52,11 +52,11 @@ in { config = {
     # Bash as your login shell and `bin/sh` and use (e.g) Fish in the terminal.
     # This way you get the best of both POSIX compliance and Fish completions.
     # You will need to enable the desired shell for this to work.
-    launchShell = ""; # can be: "zsh". "fish" or "nushell". "" is no shell.
+    launchShell = "fish"; # can be: "zsh". "fish" or "nushell". "" is no shell.
   };
 
   # Fish - The Friendly Interactive Shell. Simple and easy to use.
-  programs.fish = disabled // { shellAbbrs.sh- = "sh -c '"; };
+  programs.fish = enabled // { shellAbbrs.sh- = "sh -c '"; };
 
   #====<< Terminal programs >>=================================================>
   programs = {
@@ -64,6 +64,7 @@ in { config = {
     git = enabled // {
       userName  = gitUsername;
       userEmail = gitEmail;
+      signing.format = "ssh";
     };
     # Git terminal user interface
     lazygit = enabled;

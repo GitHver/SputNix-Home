@@ -41,7 +41,7 @@
     # obs-studio
     ### Exeptional video editing software.
     # kdenlive
-    ### Multi track audio editor/recorder.
+    ### Mutli track audio editor/recorder.
     # tenacity
     ### 3D modeling software.
     # blender
@@ -53,10 +53,9 @@
     ### Music streaming client.
     # spotify
     #==<< Misc >>======================>
-    ### Windows executable (.exe) compatability layer.
-    # wineWowPackages.stable
-    ### Open source Minecraft launcher.
-    # prismlauncher
+    # wineWowPackages.stable  # Windows executable (.exe) compatability layer.
+    # prismlauncher           # Open source Minecraft launcher.
+    # steam
     #==<< Programming >>===============>
     ### Rust
     # rustc

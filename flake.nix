@@ -19,7 +19,11 @@
   outputs = inputs @ { self, nixpkgs, home-manager, ... }: let
     #====<< Required variables >>======>
     lib = nixpkgs.lib;
-    alib = inputs.sputnix-extras.lib; # // Other libraries
+    # Here you can create a set of all 3rd party libraries you use.
+    alib =
+      inputs.sputnix-extras.lib
+      # // inputs.other.lib
+    ;
     #====<< Used functions >>==========>
     inherit (lib) genAttrs;
     inherit (lib.lists) flatten;
@@ -63,6 +67,8 @@
     #====<< Home manager configurations >>=====================================>
     homeConfigurations = attrsForEach (getBaseFileNames ./hosts) (host: {
       "${pAtt.username}@${host}" = homeManagerConfiguration {
+        # `pkgs` cannot be automatically defined as home-manager does not know
+        # the architecture of the system building it.
         pkgs = import nixpkgs { system = import ./hosts/${host}/arch.nix; };
         extraSpecialArgs = { inherit self inputs alib pAtt; };
         modules = flatten [
